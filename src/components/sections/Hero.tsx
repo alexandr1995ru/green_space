@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Fragment, useEffect } from 'react';
 import { ArrowUpRight, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { company } from '@/lib/site-data';
+import type { HeroVariant } from '@/lib/hero-variants';
 
 const SERVICES = [
   { label: 'Клещи', desc: 'от 3 500 ₽' },
@@ -80,9 +81,19 @@ function FloatingPointer({
 /* ═══════════════════════════════════════════
    HERO SECTION — GLITCH REFERENCE 1:1
    ═══════════════════════════════════════════ */
-export default function Hero() {
+export default function Hero({ variant }: { variant: HeroVariant }) {
+  const showVideo = variant.showBackgroundVideo;
+  const poster = variant.posterImage;
+  const headingNode = variant.headingLines.map((line, i) => (
+    <Fragment key={i}>
+      {i > 0 && <br />}
+      {line}
+    </Fragment>
+  ));
+
   // Deferred video load: set src AFTER page paint, then autoplay
   useEffect(() => {
+    if (!showVideo) return;
     const video = document.getElementById('hero-bg-video') as HTMLVideoElement;
     if (!video) return;
 
@@ -109,7 +120,7 @@ export default function Hero() {
       window.removeEventListener('touchstart', loadAndPlay);
       window.removeEventListener('click', loadAndPlay);
     };
-  }, []);
+  }, [showVideo]);
 
   return (
     <section className="relative w-full h-[100svh] p-3 lg:p-6 overflow-hidden flex flex-col" style={{ backgroundColor: FRAME_BG }}>
@@ -122,13 +133,20 @@ export default function Hero() {
       <div className="relative w-full h-full rounded-[28px] lg:rounded-[32px] overflow-hidden bg-[#111] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
         
         {/* Z-0: Poster background (instant paint) + deferred video */}
-        <div 
-          className="absolute inset-0 w-full h-full z-0 opacity-90 pointer-events-none bg-cover bg-center"
-          style={{ backgroundImage: 'url(/images/hero_poster.jpg)' }}
-          dangerouslySetInnerHTML={{
-            __html: `<video id="hero-bg-video" class="w-full h-full object-cover" poster="/images/hero_poster.jpg" autoplay loop muted playsinline preload="metadata"></video>`
-          }}
-        />
+        {showVideo ? (
+          <div
+            className="absolute inset-0 w-full h-full z-0 opacity-90 pointer-events-none bg-cover bg-center"
+            style={{ backgroundImage: `url(${poster})` }}
+            dangerouslySetInnerHTML={{
+              __html: `<video id="hero-bg-video" class="w-full h-full object-cover" poster="${poster}" autoplay loop muted playsinline preload="metadata"></video>`,
+            }}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 w-full h-full z-0 opacity-90 pointer-events-none bg-cover bg-center"
+            style={{ backgroundImage: `url(${poster})` }}
+          />
+        )}
         
         {/* Z-1: Overlays for contrast */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent z-[1]" />
@@ -251,7 +269,7 @@ export default function Hero() {
           className="lg:hidden absolute left-5 right-3 bottom-[52%] z-[10] text-[44px] min-[375px]:text-[50px] sm:text-[68px] font-black text-white leading-[1.05] tracking-[-0.03em] break-words hyphens-auto pointer-events-none"
           style={{ textShadow: '0 4px 60px rgba(0,0,0,0.5)' }}
         >
-          Сезон<br/>без клещей<br/>и борщевика
+          {headingNode}
         </motion.h1>
 
         {/* MOBILE 3: Description */}
@@ -262,9 +280,7 @@ export default function Hero() {
           className="lg:hidden absolute left-5 right-[165px] bottom-[calc(32%+12px)] z-[10] text-white/80 text-[13px] min-[375px]:text-[14px] sm:text-[18px] leading-snug font-medium pointer-events-none"
           style={{ textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}
         >
-          Защита территорий<br/>
-          <span className="text-white font-bold">от 3 500 ₽</span>.<br/>
-          Гарантия до 3 лет.
+          {variant.description}
         </motion.p>
 
         {/* MOBILE 4: CTA buttons */}
@@ -331,7 +347,7 @@ export default function Hero() {
             className="text-[96px] font-black text-white leading-[1.05] tracking-[-0.03em] mb-6 break-words hyphens-auto"
             style={{ textShadow: '0 4px 60px rgba(0,0,0,0.5)' }}
           >
-            Сезон<br/>без клещей<br/>и борщевика
+            {headingNode}
           </motion.h1>
 
           <motion.p
@@ -339,9 +355,7 @@ export default function Hero() {
             className="text-white/80 text-[20px] max-w-[520px] leading-relaxed font-medium mb-8"
             style={{ textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}
           >
-            Профессиональная защита территорий.
-            Фиксируем цену в договоре <span className="text-white font-bold">от 3 500 ₽</span>{' '}
-            с гарантией результата до 3 лет.
+            {variant.description}
           </motion.p>
         </motion.div>
 
