@@ -9,7 +9,7 @@ const getServerSnapshot = () => null;
 export default function AnalyticsScripts() {
   const consent = useSyncExternalStore(subscribeConsent, getConsent, getServerSnapshot);
 
-  if (consent !== 'accepted') return null;
+  if (consent === 'declined') return null;
 
   return (
     <>
